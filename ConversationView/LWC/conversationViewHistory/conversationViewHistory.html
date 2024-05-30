@@ -1,0 +1,403 @@
+<template>
+
+  <!-- Loading Spinner -->
+  <template lwc:if={isLoading}>
+    <lightning-spinner variant="brand" size="large" alternative-text="Loading">
+    </lightning-spinner>
+  </template>
+  
+  <!-- Main Content Container -->
+  <div class="convo-view-history-container">
+
+    <!-- Action Buttons Container -->
+    <div class="refresh slds-grid slds-m-bottom_medium icon-container">
+
+      <!-- Search Bar -->
+      <div class="slds-col_bump-right" style="margin: 0 5px">
+        <c-expandable-search-bar
+          oninput={handleSearchInput}
+          onsearchclosed={clearSearch}
+          placeholder-text="Search Conversations..."
+        >
+        </c-expandable-search-bar>
+      </div>
+      
+      <!-- Refresh Button -->
+      <div class="slds-col_bump-right" style="margin: 0 5px">
+        <lightning-button-icon
+          icon-class="slds-button__icon_hint"
+          icon-name="utility:refresh"
+          variant="border-filled"
+          slot="actions"
+          onclick={handleRefresh}
+          size="medium"
+          alternative-text="Refresh"
+          title="Refresh"
+        >
+        </lightning-button-icon>
+      </div>
+      
+      <!-- Toggle Filters Modal Button -->
+      <div class="slds-col_bump-right" style="margin: 0 5px">
+        <lightning-button-icon
+          icon-name="utility:filterList"
+          class="slds-col_bump-left"
+          icon-class="slds-button__icon_hint"
+          variant="border-filled"
+          onclick={handleFilterClick}
+          slot="actions"
+          size="medium"
+          name="filter-button"
+          title="Filter Type and Date"
+          alternative-text="Filter Type and Date"
+        >
+        </lightning-button-icon>
+      </div>
+      
+      <!-- Filter Modal Droplist -->
+      <div class={filterClass}>
+        <div
+          class="slds-dropdown slds-dropdown_right slds-dropdown_small slds-p-around_medium slds-grid slds-gutters"
+        >
+
+          <!-- Conversation Type Filter -->
+          <div class="slds-col filter-group">
+            <lightning-radio-group
+              type="radio"
+              name="Type"
+              label="Type:"
+              value={filterType}
+              options={typeFilterOptions}
+              onchange={handleTypeFilter}
+            ></lightning-radio-group>
+          </div>
+
+          <!-- Conversation Date Filter -->
+          <div class="slds-col filter-group">
+            <lightning-radio-group
+              type="radio"
+              name="Date"
+              label="Date:"
+              data-id="date-filters"
+              value={filterDate}
+              onchange={handleDateFilter}
+              options={dateFilterOptions}
+            ></lightning-radio-group>
+          </div>
+          
+          <!-- Conversation Custom Start/End Date Filter -->
+          <div class="date-container">
+            <template lwc:if={customDate}>
+              <!-- Start Date -->
+              <div class="slds-col">
+                <lightning-input
+                  type="date"
+                  name="startDate"
+                  label="Start Date"
+                  data-id="startDate"
+                  onchange={handleStartDate}
+                  min={minEndDate}
+                  max={maxStartDate}
+                >
+                </lightning-input>
+              </div>
+              <!-- End Date -->
+              <div class="slds-col">
+                <lightning-input
+                  type="date"
+                  name="endDate"
+                  label="End Date"
+                  class="end-date"
+                  data-id="endDate"
+                  onchange={handleEndDate}
+                  min={minEndDate}
+                >
+                </lightning-input>
+              </div>
+            </template>
+
+            <!-- Clear Custom Date Button -->
+            <div class="slds-col slds-p-top_small">
+              <template lwc:if={customDate}>
+                <div class="date-button-container">
+                  <lightning-button
+                    label="Clear"
+                    title="Clear"
+                    onclick={clearFilters}
+                    class="slds-m-left_x-small"
+                  ></lightning-button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message When Record Has No Conversation History -->
+    <template lwc:if={showNoData}>
+      <div class="no-convo-text-container">
+        <div class="no-convo-text slds-text-heading_medium">
+          <template lwc:if={isFiltered}>
+            <h2 class="slds-m-bottom_small">No conversations match your selected filters 🤷</h2>
+            <button
+              onclick={clearFilters}
+              class="slds-button slds-button_neutral slds-button_stretch slds-p-top_medium clear-filters-button"
+            >
+              Clear Filters
+            </button>
+          </template>
+          <template lwc:else>
+            <h2>No conversations here &mdash; yet!</h2>
+          </template>
+        </div>
+      </div>
+    </template>
+    
+    <!-- Conversation Feed Section -->
+    <section class="container" onscroll={onScrollEvent}>
+      <template for:each={conversationThreads} for:item="conversation">
+        <div class="conversation-group" key={conversation.key}>
+          <div class="conversation-group-date-container">
+            <div class="conversation-group-date">
+              <lightning-formatted-date-time
+                value={conversation.key}
+                year="numeric"
+                month="short"
+                day="2-digit"
+                weekday="long"
+              ></lightning-formatted-date-time>
+            </div>
+            &nbsp;
+          </div>
+
+          <!-- Conversation Items -->
+          <div class="conversations">
+            <template for:each={conversation.values} for:item="convo">
+              
+              <!-- Incoming Conversation Items -->
+              <template lwc:if={convo.incoming}>
+                <div class="conversation-item-inbound" key={convo.recId}>
+                  <!-- Email Reply Modal -->
+                  <template lwc:if={openReplyModal}>
+                    <c-email-modal
+                      email={convo.email}
+                      org-id={orgId.data}
+                      msg-id={convo.recId}
+                      site-url={siteUrl.data}
+                      convo-id={convo.convoId}
+                      form-factor={formFactor}
+                      onclosemodal={closeReplyModal}
+                    >
+                    </c-email-modal>
+                  </template>
+                  <div class="conversation-icon">
+                    <lightning-icon
+                      icon-name={convo.icon}
+                      alternative-text={convo.type}
+                      title={convo.type}
+                    >
+                    </lightning-icon>
+                  </div>
+
+                  <!-- Conversation Item Body -->
+                  <div
+                    class="conversation-content"
+                    onclick={handleItemClicked}
+                    data-id={convo.recId}
+                    data-type={convo.type}
+                  >
+                    <template lwc:if={convo.duration}>
+                      <p style="float:right">{convo.duration} sec</p>
+                    </template>
+                    <h3 class="message-subject">{convo.subject}</h3>
+                    <lightning-formatted-rich-text
+                      class="body-text"
+                      value={convo.body}
+                    >
+                    </lightning-formatted-rich-text>
+                  </div>
+                  <!-- Email Reply Button -->
+                  <template lwc:if={convo.isEmail}>
+                    <div class="reply-container">
+                      <lightning-button
+                        variant="base"
+                        label="Reply"
+                        title="Reply"
+                        icon-name="utility:reply"
+                        class="slds-m-left_x-small"
+                        onclick={handleEmailReply}
+                        data-conversation-id={convo.recId}
+                      >
+                      </lightning-button>
+                    </div>
+                  </template>
+                  <!-- Conversation Date and Details -->
+                  <div class="conversation-date">
+                    <p>{convo.email}</p>
+                    <template lwc:if={convo.isSMS}>
+                      <p>
+                        From Number:
+                        <lightning-formatted-phone
+                          value={convo.phone}
+                        ></lightning-formatted-phone>
+                      </p>
+                    </template>
+                    <p>
+                      <lightning-formatted-date-time
+                        year="numeric"
+                        month="numeric"
+                        day="numeric"
+                        hour="2-digit"
+                        minute="2-digit"
+                        time-zone-name="short"
+                        hour12="true"
+                        value={convo.createdDate}
+                      >
+                      </lightning-formatted-date-time>
+                    </p>
+                  </div>
+                </div>
+              </template>
+              <template lwc:else>
+                <!-- Outbound Conversation Item -->
+                <div class="conversation-item-outbound" key={convo.recId}>
+                  <div class="conversation-icon">
+                    <lightning-icon
+                      icon-name={convo.icon}
+                      alternative-text={convo.type}
+                      title={convo.type}
+                    >
+                    </lightning-icon>
+                  </div>
+                  <!-- Conversation Item Body -->
+                  <div
+                    class="conversation-content"
+                    onclick={handleItemClicked}
+                    data-id={convo.recId}
+                    data-type={convo.type}
+                  >
+                  <!-- Conversation Item Title -->
+                    <template lwc:if={convo.durationString}>
+                      <p style="float:right">{convo.durationString}</p>
+                    </template>
+                    <h3 class="message-subject">{convo.subject}</h3>
+                    <lightning-formatted-rich-text
+                      class="body-text"
+                      value={convo.body}
+                    >
+                    </lightning-formatted-rich-text>
+                  </div>
+                  <!-- Conversation Sender Details -->
+                  <div class="conversation-date">
+                    <p>{convo.email}</p>
+                    <template lwc:if={convo.isSMS}>
+                      <p>
+                        To Number:
+                        <lightning-formatted-phone
+                          value={convo.phone}
+                        ></lightning-formatted-phone>
+                      </p>
+                    </template>
+                    <p>
+                      <!-- Conversation Created Date -->
+                      <lightning-formatted-date-time
+                        year="numeric"
+                        month="numeric"
+                        day="numeric"
+                        hour="2-digit"
+                        minute="2-digit"
+                        time-zone-name="short"
+                        hour12="true"
+                        value={convo.createdDate}
+                      >
+                      </lightning-formatted-date-time>
+                    </p>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <!-- Conversation Item Detail Modal -->
+    <template lwc:if={openRecordDetail}>
+      <div class="modalContainer">
+        <section
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="modal-heading-01"
+          aria-modal="true"
+          aria-describedby="modal-content-id-1"
+          class="slds-modal slds-fade-in-open"
+        >
+          <div data-id="modal_container" class="slds-modal__container">
+            <div
+              class="slds-modal__header slds-p-bottom_x-small slds-p-top_x-small"
+            >
+              <button
+                class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                title="Close"
+                onclick={closeModal}
+              >
+                <lightning-button-icon
+                  variant="inverse"
+                  alternative-text="close"
+                  icon-name="utility:close"
+                  size="small"
+                ></lightning-button-icon>
+                <span class="slds-assistive-text">Close</span>
+              </button>
+              <div class="modal-element-parent">
+                <div class="modal-element-child">
+                  <h1
+                    id="modal-heading-05"
+                    class="slds-text-heading_medium slds-hyphenate"
+                  >
+                    {detailHeaderTitle}
+                  </h1>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="slds-modal__content slds-p-around_medium slds-is-relative"
+              style="overflow:initial"
+              id="modal-content-id-5"
+            >
+            <!-- Conversation Item Detail Body -->
+              <template lwc:if={variablesAreSet}>
+                <c-conversation-view-history-detail
+                  type={type}
+                  rec-id={recId}
+                  form-factor={formFactor}
+                  onclosemodal={closeModal}
+                  record-id={recordId}
+                >
+                </c-conversation-view-history-detail>
+              </template>
+            </div>
+
+            <div
+              class="slds-modal__footer modal-element-parent slds-p-top_small"
+            >
+              <div class="modal-element-child">
+                <button
+                  class="slds-button footer-button slds-button_neutral"
+                  onclick={closeModal}
+                  aria-label="Cancel and close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- Conversation Detail Modal Backdrop -->
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+  </div>
+</template>

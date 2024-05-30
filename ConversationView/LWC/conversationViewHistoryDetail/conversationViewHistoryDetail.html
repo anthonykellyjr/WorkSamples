@@ -1,0 +1,362 @@
+<template>
+
+    <div class="detail-container slds-p-around_medium">
+
+        <template lwc:if={isCall}>
+
+            <!-- Container for Zoom calls -->
+            <template lwc:if={isZoom}>
+
+                <div class="zoom-call-container">
+                    <h1>Subject</h1>
+                    <h2>CreatedDate</h2>
+                    <hr>
+                    <h1>Call Details</h1>
+                    <br>
+                    <p class="detail-sub-title">Call Type Holder</p>
+                    <div>
+                        <p class="detail-sub-title">When: </p>
+                        <p>Holder</p>
+                    </div>
+                    <p>zoom link holder</p>
+                    <br>
+                    <div>
+                        <p class="detail-sub-title">Ateendees: </p>
+                        <p>Holder</p>
+                    </div>
+                    <br>
+                    <p class="detail-sub-title">Description:</p>
+                    <p>description holder</p>
+                    <br>
+                </div>
+
+            </template>
+
+            <!-- Container for Conquer Voice calls -->
+            <template lwc:else>
+                <div class="standard-call-container">
+
+                    <div class="standard-call-header-container">
+                        <h1>
+                            <lightning-formatted-text value="Call Details"></lightning-formatted-text>
+                        </h1>
+                    </div>
+
+                    
+                    <div class="standard-call-body-container">
+
+                        <lightning-layout vertical-align="stretch" multiple-rows="true" class="x-large">
+                            <!--Assigned To-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Assigned To:</p>
+                                <template lwc:if={callObj.ownerName}>
+                                    <a onclick={navigateToOwner} >
+                                        <p>
+                                            <lightning-formatted-text value={callObj.ownerName}></lightning-formatted-text>
+                                        </p>
+                                    </a>
+                                </template>
+                            </lightning-layout-item>
+                            <!--Subject-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Subject:</p>
+                                <a onclick={navigateToRecord} >
+                                    <p>
+                                        <lightning-formatted-text value={callObj.subject}></lightning-formatted-text>
+                                    </p>
+                                </a>
+                            </lightning-layout-item>
+                            <!--DialSource Action Link-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">DialSource Action:</p>
+                                <p onclick={navigateToRecord} class="p-link">
+                                    {recordObj.Name}
+                                </p>
+                            </lightning-layout-item>  
+                            <!--Date-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Call Date:</p>
+                                <p>
+                                    <lightning-formatted-date-time 
+                                        year="numeric" 
+                                        month="numeric" 
+                                        day="numeric" 
+                                        hour="2-digit"
+                                        minute="2-digit" 
+                                        time-zone-name="short" 
+                                        hour12="true" 
+                                        value={callObj.date}>
+                                    </lightning-formatted-date-time>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Phone-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Phone:</p>
+                                <p>
+                                    <lightning-click-to-dial onclick={closeModal} value={callObj.phone} record-id={callObj.callRecId} ></lightning-click-to-dial>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Status-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Status:</p>
+                                <p>
+                                    <lightning-formatted-text value={callObj.status}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+
+
+                            <!--Record Name-->
+                            <template lwc:if={callObj.callRecName}>
+                                <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                    <p class="detail-sub-title">{callObj.callRecType}</p>
+                                    <p>
+                                        <a onclick={navigateToCallObj} ><lightning-formatted-text value={callObj.callRecName}></lightning-formatted-text></a>
+                                    </p>
+                                </lightning-layout-item>
+                            </template>
+
+
+                            <!--Call Duration-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Call Length:</p>
+                                <p>
+                                    <lightning-formatted-text value={callObj.callDuration}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Play Recording-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Call Recording:</p>
+                                <template lwc:if={callObj.recordingId} >
+                                    <p> 
+                                        <a onclick={openRecording} ><lightning-formatted-text value="Play Recording"></lightning-formatted-text></a>
+                                    </p>
+                                </template>
+                                <template lwc:else>
+                                    <p> 
+                                        <lightning-formatted-text value="No Recording Available"></lightning-formatted-text>
+                                    </p>
+                                </template>
+                            </lightning-layout-item>
+                            <!--Created By-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Created By:</p>
+                                <p>
+                                    <a onclick={navigateToCreatedBy} ><lightning-formatted-text value={callObj.createdBy} ></lightning-formatted-text></a>&nbsp;
+                                     <lightning-formatted-date-time 
+                                                              year="numeric" 
+                                                              month="numeric" 
+                                                              day="numeric" 
+                                                              hour="2-digit"
+                                                              minute="2-digit" 
+                                                              time-zone-name="short" 
+                                                              hour12="true" 
+                                                              value={callObj.createdDate}>
+                                                              </lightning-formatted-date-time></p>
+                            </lightning-layout-item>
+                            <!--Last Modified By-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Last Modified By:</p>
+                                <p> 
+                                    <a onclick={navigateToLastModifiedBy} ><lightning-formatted-text value={callObj.lastModifiedBy}></lightning-formatted-text></a>&nbsp;
+                                    <lightning-formatted-date-time 
+                                                                    year="numeric" 
+                                                                    month="numeric" 
+                                                                    day="numeric" 
+                                                                    hour="2-digit"
+                                                                    minute="2-digit" 
+                                                                    time-zone-name="short" 
+                                                                    hour12="true" 
+                                                                    value={callObj.lastModifiedDate}>
+                                                                    </lightning-formatted-date-time></p>
+                            </lightning-layout-item>
+                            <!--Comments/Notes-->
+                            <lightning-layout-item size="12" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Comments:</p>
+                                <p>
+                                    <lightning-formatted-text value={callObj.notes}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <template lwc:if={isEmail}>
+            <div class="email-container">
+                <template for:each={recordItems} for:item="email">
+                        <c-conversation-view-detail-item 
+                            key={email.id} 
+                            message={email}>
+                        </c-conversation-view-detail-item>
+                </template>
+            </div>
+        </template>
+        <template lwc:if={isSMS}>
+            <div class="sms-container">
+                <template for:each={recordObj.items} for:item="sms">
+                    <c-conversation-view-detail-item 
+                        key={sms.id} 
+                        message={sms}>
+                    </c-conversation-view-detail-item>
+            </template>
+            </div>
+        </template>
+
+        <template lwc:if={isCustom}>
+            <div class="custom-container">
+                <div class="standard-call-header-container">
+                    <h1>
+                        <lightning-formatted-text value={customStepTitle}></lightning-formatted-text>
+                    </h1>
+                </div>
+
+                <template lwc:if={recordObj} >
+                    <div class="standard-call-body-container">
+
+                        <lightning-layout vertical-align="stretch" multiple-rows="true" class="x-large">
+                            <!--Name-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Name:</p>
+                                <a onclick={navigateToRecord} >
+                                    <p>
+                                        <lightning-formatted-text value={recordObj.Name}></lightning-formatted-text>
+                                    </p>
+                                </a>
+                            </lightning-layout-item>
+                            <!--Status-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Status:</p>
+                                <p>
+                                    <lightning-formatted-text value={recordObj.DS_Packages__Status__c}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Assigned To-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Assigned To:</p>
+                                <template lwc:if={recordObj.Owner.Name}>
+                                    <a onclick={navigateToOwner} >
+                                        <p>
+                                            <lightning-formatted-text value={recordObj.Owner.Name}></lightning-formatted-text>
+                                        </p>
+                                    </a>
+                                </template>
+                            </lightning-layout-item>
+                            <!--Cadence-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Cadence:</p>
+                                <template lwc:if={recordObj.DS_Packages__Cadence__r.Name}>
+                                    <a onclick={navigateToCadence} >
+                                        <p>
+                                            <lightning-formatted-text value={recordObj.DS_Packages__Cadence__r.Name}></lightning-formatted-text>
+                                        </p>
+                                    </a>
+                                </template>
+                            </lightning-layout-item>
+                            <!--Due Date-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Due Date:</p>
+                                <p>
+                                    <lightning-formatted-date-time 
+                                        year="numeric" 
+                                        month="numeric" 
+                                        day="numeric" 
+                                        hour="2-digit"
+                                        minute="2-digit" 
+                                        time-zone-name="short" 
+                                        hour12="true" 
+                                        value={recordObj.DS_Packages__Due_Date_Time__c}>
+                                    </lightning-formatted-date-time>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Outcome-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Outcome:</p>
+                                <p>
+                                    <lightning-formatted-text value={recordObj.DS_Packages__Outcome__c}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Completed Date-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Completed Date:</p>
+                                <p>
+                                    <lightning-formatted-date-time 
+                                        year="numeric" 
+                                        month="numeric" 
+                                        day="numeric" 
+                                        hour="2-digit"
+                                        minute="2-digit" 
+                                        time-zone-name="short" 
+                                        hour12="true" 
+                                        value={recordObj.DS_Packages__Completed_Removed_Datetime__c}>
+                                    </lightning-formatted-date-time>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Outcome Sentiment-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Outcome Sentiment:</p>
+                                <p>
+                                    <lightning-formatted-text value={recordObj.DS_Packages__Outcome_Sentiment__c}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                            <!--Created By-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Created By:</p>
+                                <p>
+                                    <a onclick={navigateToCreatedBy} ><lightning-formatted-text value={recordObj.CreatedBy.Name} ></lightning-formatted-text></a>&nbsp;
+                                     <lightning-formatted-date-time 
+                                                              year="numeric" 
+                                                              month="numeric" 
+                                                              day="numeric" 
+                                                              hour="2-digit"
+                                                              minute="2-digit" 
+                                                              time-zone-name="short" 
+                                                              hour12="true" 
+                                                              value={recordObj.CreatedDate}>
+                                                              </lightning-formatted-date-time></p>
+                            </lightning-layout-item>
+                            <!--Last Modified By-->
+                            <lightning-layout-item size="6" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Last Modified By:</p>
+                                <p> 
+                                    <a onclick={navigateToLastModifiedBy} ><lightning-formatted-text value={recordObj.LastModifiedBy.Name}></lightning-formatted-text></a>&nbsp;
+                                    <lightning-formatted-date-time 
+                                                                    year="numeric" 
+                                                                    month="numeric" 
+                                                                    day="numeric" 
+                                                                    hour="2-digit"
+                                                                    minute="2-digit" 
+                                                                    time-zone-name="short" 
+                                                                    hour12="true" 
+                                                                    value={recordObj.LastModifiedDate}>
+                                                                    </lightning-formatted-date-time></p>
+                            </lightning-layout-item>
+                            <!--Notes-->
+                            <lightning-layout-item size="12" flexibility="auto" padding="around-medium" >
+                                <p class="detail-sub-title">Notes:</p>
+                                <p>
+                                    <lightning-formatted-text value={recordObj.DS_Packages__Notes__c}></lightning-formatted-text>
+                                </p>
+                            </lightning-layout-item>
+                        </lightning-layout>
+    
+                    </div>
+                </template>
+
+                <template lwc:else >
+                    There was an issue retrieving the data for this Touchpoint. Please contact your administrator if the issue continues.
+                </template>
+            </div>            
+        </template>
+
+    </div>
+
+    <template lwc:if={isLoading}>
+        <lightning-spinner
+           variant="brand"
+           size="large">
+        </lightning-spinner>
+     </template>
+    
+</template>

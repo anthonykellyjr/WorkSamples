@@ -1,0 +1,67 @@
+public with sharing class conversationViewHistoryWrapper implements Comparable{
+
+    @AuraEnabled
+    public Id recId;
+    @AuraEnabled
+    public string subject;
+    @AuraEnabled
+    public datetime createdDate;
+    @AuraEnabled
+    public string body;
+    @AuraEnabled
+    public datetime startDate;
+    @AuraEnabled
+    public datetime endDate;
+    @AuraEnabled
+    public decimal duration;
+	@AuraEnabled
+    public String durationString;
+    @AuraEnabled
+    public string icon; 
+    @AuraEnabled
+    public boolean incoming;  
+    @AuraEnabled
+    public string phone;
+    @AuraEnabled
+    public string email; 
+    @AuraEnabled
+    public string type; 
+    @AuraEnabled
+    public id convoId;
+	@AuraEnabled
+	public boolean isEmail;
+	@AuraEnabled
+	public boolean isSMS; 
+    
+    public conversationViewHistoryWrapper(){}
+    
+    public conversationViewHistoryWrapper(Id recId, string subject, string body, 
+                                            datetime createdDate, datetime startDate, datetime endDate, 
+                                            decimal duration, string icon, boolean incoming,
+                                            string phone, string email, string type, id convoId, boolean isEmail, boolean isSMS) {
+        this.recId 			= recId;
+        this.subject 		= subject;
+        this.createdDate 	= createdDate;
+        this.body 			= body;
+        this.startDate 		= startDate;
+        this.endDate 		= endDate;
+        this.duration 		= duration;
+        this.icon 			= icon;
+        this.incoming 		= incoming;
+        this.phone 			= phone;
+        this.email 			= email;
+        this.type 			= type;
+        this.convoId 		= convoId;
+		this.isEmail 		= isEmail;
+		this.isSMS 			= isSMS;
+    }
+	
+
+    public integer compareTo(object compareTo){
+        conversationViewHistoryWrapper compareToCV = (conversationViewHistoryWrapper)compareTo;
+        if(createdDate == compareToCV.createdDate) return 0;
+        if(createdDate < compareToCV.createdDate) return 1;
+        return -1;
+    }
+
+}
