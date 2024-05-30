@@ -1,0 +1,3 @@
+ScratchOrgSeedingScript: Contains Apex classes that I wrote for seeding new scratch edition Salesforce orgs with the data necessary to begin developing against the latest version of Master branch right away. For further ease of use, I also wrote a bash file which authenticates against Conquer's back end, spins up a scratch org, pushes the code base to the org, and seeds the org with the afore described data.
+
+The bash file is configured so that it only runs in the context of a .SFDX project, specifically in a directory called "~../packages/conquer". It is not intended for use outside of Conquer, and is included here simply as a sample of work I have personally performed.
