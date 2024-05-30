@@ -1,0 +1,1 @@
+Bulk Cadence Enrollment: this directory contains the "Start" service, which is used to enoll prospects into a Cadence (sales path), as well as a bulk upload tool implementing Batchable Apex in order to enable managers to enroll over a million records (via CSV file) into an Enterprise production org without exceeding governor limits.
