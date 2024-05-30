@@ -2,3 +2,5 @@ Conversation View is a sales agent's hub, giving them a one stop shop to see all
 It is presented chronologically, in descending timeline order, and uses infinite scroll to refresh data and pull more entries as a user scrolls. When clicking into an individual conversation item, a modal is presented showing details about the interaction. Users can even compose and reply to emails, or make calls directly from Conversation View. They can search for keywords, and filter by interaction type as well.
 
 In this folder are the Apex classes that I utilized, as well as the parent LWC and its children. I was not given a mock to work from in this project, and instead used Figma to mock it up myself and then build it.
+
+![Screenshot of Conversation View in action.](https://raw.githubusercontent.com/anthonykellyjr/WorkSamples/main/ConversationView/ConversationView.png)
