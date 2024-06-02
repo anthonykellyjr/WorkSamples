@@ -3,6 +3,6 @@ It is presented chronologically, in descending timeline order, and uses infinite
 
 In this folder are the Apex classes that I utilized, as well as the parent LWC and its children. I was not given a mock to work from in this project, and instead used Figma to mock it up myself and then build it.
 
-![Conversation View timeline support for calls and SMS](https://github.com/anthonykellyjr/WorkSamples/blob/main/ConversationView/ConversationViewCalls.png?raw=true)
+![Conversation View timeline support for calls and SMS](https://raw.githubusercontent.com/anthonykellyjr/WorkSamples/main/ConversationView/ConversationViewCalls.png)
 
-![Conversation View timeline support for email messages and replies](https://github.com/anthonykellyjr/WorkSamples/blob/main/ConversationView/ConversationViewEmails.png?raw=true)
+![Conversation View timeline support for email messages and replies](https://raw.githubusercontent.com/anthonykellyjr/WorkSamples/main/ConversationView/ConversationViewEmails.png)
