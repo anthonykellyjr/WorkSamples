@@ -6,6 +6,8 @@ Each directory will demonstrate a particular core competency, specifically:
 
 * OpenTouchpoints & Cadence Utilities
 
+* LWC utilities for standardized front-end error handling, text search, and Wire Refresh operations
+
 * ScratchOrgSeedingScript: Contains Apex classes that I wrote for seeding new scratch edition Salesforce orgs with the data necessary to begin developing against the latest version of Master branch right away. For further ease of use, I also wrote a bash file which authenticates against Conquer's back end, spins up a scratch org, pushes the code base to the org, and seeds the org with the afore described data.
 
 * Conversation View: A flagship component of the Cadence app, Conversation View can be embedded onto any record page. It will display a timeline view of all calls, emails, text messages, and other custom step types (including 3rd party integrations) in a hub interface. In this interface they are also able to send outgoing emails, respond to incoming emails, and place calls, without leaving Conversation View.
