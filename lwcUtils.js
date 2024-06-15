@@ -7,29 +7,20 @@ export const IS_MOBILE = FORM_FACTOR.toLowerCase() === 'small';
 export const NULL_PAGE_REF = JSON.stringify({"type":"standard__recordPage","attributes":{"recordId":"","actionName":"view","objectApiName":""},"state":{}});
 
 // PRIMARY ERROR HANDLER METHOD FOR ALL LWC
-export const handleError = (cmp, errors, isResult=false) => {
+export const handleError = (cmp, errors, notifyUser=false) => {
     const source = getCmpName(cmp);
     const sourceName = getLabelFromDevName(source);
-    const joiner = sourceName != '' ? ' - ' : '';
+    const joinOperator = sourceName != '' ? ' - ' : ''; // join array of strings
 
-    if (isResult) { // process Result.cls error and return
-        const exceptionMsg = errors.errorMessage?.replace('&amp;', '&');
-        const exceptionName = errors.exceptionType?.split('.').slice(-1);
-        const event = new ShowToastEvent({
-            title: `Conquer Error: ${exceptionName}`,
-            message: sourceName + joiner + exceptionMsg,
-            variant: 'Error',
-            mode: 'sticky'
-        });
-        cmp.dispatchEvent(event);
-        console.error('Conquer', sourceName, 'encountered error:\n', JSON.stringify(errors));
-        return;
-    }
     const error = reduceErrors(errors);
-    console.error(`Conquer Error in ${sourceName}: ${error}`);
+    console.error(`Error in ${sourceName}: ${error}`);
+
+    if (!notifyUser) return; // handle exception gracefully
+    
+    // throw toast message, notifying user
     cmp.dispatchEvent(new ShowToastEvent({
-        title: `Conquer Encountered an Error`,
-        message: sourceName + joiner + error,
+        title: `Unhandled Exception`,
+        message: sourceName + joinOperator + error,
         variant: 'warning',
         mode: 'sticky'
     }))
